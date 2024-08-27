@@ -17,7 +17,7 @@ async function createBranch({ base, name }) {
   } = await octokit.rest.git.getRef({
     owner,
     repo,
-    ref: `refs/heads/${base}`,
+    ref: `heads/${base}`,
   });
 
   console.log(`create '${name}' branch`);
@@ -34,7 +34,7 @@ async function deleteBranch(name) {
   await octokit.rest.git.deleteRef({
     owner,
     repo,
-    ref: `refs/heads/${name}`,
+    ref: `heads/${name}`,
   });
 }
 
