@@ -26,6 +26,7 @@ async function run() {
     const success = await mergePullRequest(PRid);
 
     if (success) await deleteBranch(PRbranch);
+    else console.log("The PR is still open and needs manual merge/close");
 
     core.setOutput("success", success);
   } catch (error) {

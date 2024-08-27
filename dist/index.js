@@ -29215,6 +29215,7 @@ const { repo, owner } = github.context.repo;
 
 /** @param {{base: string, name: string}} _ */
 async function createBranch({ base, name }) {
+  console.log(`get sha from '${base}' branch`);
   const {
     data: {
       object: { sha },
@@ -29225,6 +29226,7 @@ async function createBranch({ base, name }) {
     ref: `refs/heads/${base}`,
   });
 
+  console.log(`create '${name}' branch`);
   await octokit.rest.git.createRef({
     owner,
     repo,
@@ -29234,6 +29236,7 @@ async function createBranch({ base, name }) {
 }
 
 async function deleteBranch(name) {
+  console.log(`delete '${name}' branch`);
   await octokit.rest.git.deleteRef({
     owner,
     repo,
@@ -29243,6 +29246,7 @@ async function deleteBranch(name) {
 
 /** @param {{base: string, head: string, title: string}} _ */
 async function createPullRequest({ base, head, title }) {
+  console.log(`create PR from ${head} to ${base}: "${title}"`);
   const {
     data: { id },
   } = await octokit.rest.pulls.create({
@@ -29254,10 +29258,12 @@ async function createPullRequest({ base, head, title }) {
     draft: false,
   });
 
+  console.log(`PR created with id ${id}`);
   return id;
 }
 
 async function mergePullRequest(pull_number) {
+  console.log(`trying to merge PR ${pull_number}`);
   const mergeable = await retry({
     interval: 10000,
     count: 10,
@@ -29272,7 +29278,10 @@ async function mergePullRequest(pull_number) {
       if (mergeable === null) throw new Error("PR not ready yet");
       return mergeable;
     },
-  }).catch(() => false);
+  }).catch((err) => {
+    console.log("Could not merge PR: ", err);
+    return false;
+  });
 
   if (!mergeable) return false;
 
@@ -31235,6 +31244,7 @@ async function run() {
     const success = await mergePullRequest(PRid);
 
     if (success) await deleteBranch(PRbranch);
+    else console.log("The PR is still open and needs manual merge/close");
 
     core.setOutput("success", success);
   } catch (error) {
