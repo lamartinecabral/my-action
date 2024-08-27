@@ -52,14 +52,23 @@ async function createPullRequest({ base, head, title }) {
 }
 
 async function mergePullRequest(pull_number) {
-  const {
-    data: { mergeable, mergeable_state },
-  } = await octokit.rest.pulls.get({
-    owner,
-    repo,
-    pull_number,
-  });
-  if (!mergeable || mergeable_state !== "clean") return false;
+  const mergeable = await retry({
+    interval: 10000,
+    count: 10,
+    func: async () => {
+      const {
+        data: { mergeable },
+      } = await octokit.rest.pulls.get({
+        owner,
+        repo,
+        pull_number,
+      });
+      if (mergeable === null) throw new Error("PR not ready yet");
+      return mergeable;
+    },
+  }).catch(() => false);
+
+  if (!mergeable) return false;
 
   return await octokit.rest.pulls
     .merge({
@@ -70,6 +79,26 @@ async function mergePullRequest(pull_number) {
     })
     .then(() => true)
     .catch(() => false);
+}
+
+/**
+ * @template T
+ * @param {{func: () => Promise<T>, interval: number, count: number}} _
+ * @returns {Promise<T>}
+ * */
+async function retry({ func, interval, count }) {
+  return new Promise(async (resolve, reject) => {
+    let error;
+    while (count--) {
+      const response = await func().catch((err) => {
+        error = err;
+        return undefined;
+      });
+      if (response !== undefined) return resolve(response);
+      await new Promise((r) => setTimeout(r, interval));
+    }
+    return reject(error);
+  });
 }
 
 module.exports = {
