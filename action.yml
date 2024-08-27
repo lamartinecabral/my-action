@@ -1,0 +1,17 @@
+name: "Main to Dev"
+description: "Open PR to send commits from main branch to dev branch"
+inputs:
+  main-branch: # id of input
+    description: "The name of the main branch"
+    required: false
+    default: "main"
+  dev-branch: # id of input
+    description: "The name of the dev branch"
+    required: false
+    default: "develop"
+outputs:
+  success: # id of output
+    description: "'true' if the PR was successfully closed"
+runs:
+  using: "node20"
+  main: "dist/index.js"
