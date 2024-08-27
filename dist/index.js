@@ -29258,7 +29258,16 @@ async function createPullRequest({ base, head, title }) {
 }
 
 async function mergePullRequest(pull_number) {
-  return octokit.rest.pulls
+  const {
+    data: { mergeable, mergeable_state },
+  } = await octokit.rest.pulls.get({
+    owner,
+    repo,
+    pull_number,
+  });
+  if (!mergeable || mergeable_state !== "clean") return false;
+
+  return await octokit.rest.pulls
     .merge({
       owner,
       repo,
