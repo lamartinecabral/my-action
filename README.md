@@ -22,6 +22,8 @@ This action opens a PR to send commits from the main branch to the develop branc
 
 ```yaml
 uses: lamartinecabral/my-action@main
+env:
+  GITHUB_TOKEN: ${{ github.token }}
 with:
   main-branch: "master"
 ```
