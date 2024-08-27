@@ -29248,7 +29248,7 @@ async function deleteBranch(name) {
 async function createPullRequest({ base, head, title }) {
   console.log(`create PR from ${head} to ${base}: "${title}"`);
   const {
-    data: { id },
+    data: { number },
   } = await octokit.rest.pulls.create({
     base,
     head,
@@ -29258,15 +29258,15 @@ async function createPullRequest({ base, head, title }) {
     draft: false,
   });
 
-  console.log(`PR created with id ${id}`);
-  return id;
+  console.log(`PR created with number ${number}`);
+  return number;
 }
 
 async function mergePullRequest(pull_number) {
   console.log(`trying to merge PR ${pull_number}`);
   const mergeable = await retry({
     interval: 10000,
-    count: 10,
+    count: 2,
     func: async () => {
       const {
         data: { mergeable },
