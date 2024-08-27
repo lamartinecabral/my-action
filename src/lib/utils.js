@@ -51,13 +51,13 @@ async function createPullRequest({ base, head, title }) {
   return id;
 }
 
-async function closePullRequest(pull_number) {
+async function mergePullRequest(pull_number) {
   return octokit.rest.pulls
-    .update({
+    .merge({
       owner,
       repo,
       pull_number,
-      state: "closed",
+      merge_method: "merge",
     })
     .then(() => true)
     .catch(() => false);
@@ -67,5 +67,5 @@ module.exports = {
   createBranch,
   deleteBranch,
   createPullRequest,
-  closePullRequest,
+  mergePullRequest,
 };

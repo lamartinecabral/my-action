@@ -29257,13 +29257,13 @@ async function createPullRequest({ base, head, title }) {
   return id;
 }
 
-async function closePullRequest(pull_number) {
+async function mergePullRequest(pull_number) {
   return octokit.rest.pulls
-    .update({
+    .merge({
       owner,
       repo,
       pull_number,
-      state: "closed",
+      merge_method: "merge",
     })
     .then(() => true)
     .catch(() => false);
@@ -29273,7 +29273,7 @@ module.exports = {
   createBranch,
   deleteBranch,
   createPullRequest,
-  closePullRequest,
+  mergePullRequest,
 };
 
 
@@ -31175,7 +31175,7 @@ const core = __nccwpck_require__(2186);
 const {
   createBranch,
   createPullRequest,
-  closePullRequest,
+  mergePullRequest,
   deleteBranch,
 } = __nccwpck_require__(3768);
 
@@ -31194,7 +31194,7 @@ async function run() {
       title: `${mainBranch} to ${devBranch}`,
     });
 
-    const success = await closePullRequest(PRid);
+    const success = await mergePullRequest(PRid);
 
     if (success) await deleteBranch(PRbranch);
 

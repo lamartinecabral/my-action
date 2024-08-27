@@ -4,7 +4,7 @@ const core = require("@actions/core");
 const {
   createBranch,
   createPullRequest,
-  closePullRequest,
+  mergePullRequest,
   deleteBranch,
 } = require("./lib/utils");
 
@@ -23,7 +23,7 @@ async function run() {
       title: `${mainBranch} to ${devBranch}`,
     });
 
-    const success = await closePullRequest(PRid);
+    const success = await mergePullRequest(PRid);
 
     if (success) await deleteBranch(PRbranch);
 
